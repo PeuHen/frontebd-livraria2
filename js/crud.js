@@ -39,6 +39,7 @@ const postLivros = async function(){
 
   if ( response.status == 201){
     alert("Inserido com sucesso")
+    getLivros()
   } else{
     alert("Não foi possivel inserir os registros, verifique os dados enviados")
   }
@@ -50,8 +51,22 @@ const putLivro = function(){
 }
 
 // funcao para deletar livro
-const deleteLivro = function(){
-    
+const deleteLivro = async function(idLivro){
+  //  console.log(id)
+ 
+  let url = 'https://app-livraria-2024-gsc9e3gcdsh2f2b5.brazilsouth-01.azurewebsites.net/v2/livraria/excluir/livro/' + idLivro
+
+  let response = await fetch(url, {
+    method: 'DELETE'
+
+  })
+
+  if (response.status == 200){
+    alert("Deletado com sucesso")
+    getLivros()
+  } else{
+    alert("Não foi possivel realizer a exclusao desse registro")
+  }
 }
 // listar livro
 const getLivros = async function(){
@@ -66,6 +81,9 @@ const getLivros = async function(){
 
 
     let divlistDados = document.getElementById("listDados")
+
+      // ele limpa a lista de dados, antes de carregar uma nova lista
+    divlistDados.innerText = ''
     
     
     
@@ -109,14 +127,47 @@ const getLivros = async function(){
         spanExcluir.appendChild(imgExcluir)
         
         // elemento criado dentro do foreach, o eventlistener fica dentro do foreach
-        
-        //imgExcluir.addEventListener('click', )
+            // funcao criada para excluir
+        imgExcluir.addEventListener('click',function(){
+            let resposta = confirm("Deseja deletar o " + livro.title + "?")
+                // pegar o atributo idLivro do front, quando acontecer o click
+
+                if (resposta){
+                    let id = imgExcluir.getAttribute('idLivro')
+                    // chama a funcao deleteLivro, dando o id como parametro
+                    deleteLivro(id)
+                    
+                } 
+           
+            
+        })
+
+        imgEditar.addEventListener("click", function(){
+          let id = imgEditar.getAttribute("idLivro")
+          // chamando a funcao buscar os dados do livro para edicao
+          getBuscarLivro(id)
+        })
     })
 
 }
 // funcao para buscar o livro pelo id
-const getBuscarLivro = function(){
+const getBuscarLivro = async function(idLivro){
 
+  let url = 'https://app-livraria-2024-gsc9e3gcdsh2f2b5.brazilsouth-01.azurewebsites.net/v2/livraria/livro/' + idLivro
+
+  let response = await fetch(url)
+  let dados = await response.json()
+
+    if (response.status == 200){
+      document.getElementById('title').value = dados.books[0].title
+      document.getElementById("subtitle").value = dados.books[0].subtitle
+      document.getElementById("price").value = dados.books[0].price
+      document.getElementById("image").value = dados.books[0].image
+
+
+    } else {
+      alert("Não foi possivel achar e localizar o registro")
+    }
 }
 
 
