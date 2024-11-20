@@ -46,8 +46,43 @@ const postLivros = async function(){
 
 }
 // atualizar livro existente
-const putLivro = function(){
+const putLivro = async function(){
+  //recupera o id q foi armazenado na funcao do getBuscarLivro
+  let id = sessionStorage.getItem('idLivro')
 
+  let url = 'https://app-livraria-2024-gsc9e3gcdsh2f2b5.brazilsouth-01.azurewebsites.net/v2/livraria/atualizar/livro/' + id
+
+  //receber dados do formulário
+  let titulo = document.getElementById('title')
+  let descricao = document.getElementById('subtitle')
+  let foto = document.getElementById('image')
+  let valor = document.getElementById('price')
+
+  //cria um objeto do tipo JSON {} / cria um objeto do tipo array []
+ let livroJSON = {}
+  // criando atributos no Json e colocando valores
+ livroJSON.title = titulo.value
+ livroJSON.subtitle = descricao.value
+ livroJSON.image = foto.value
+ livroJSON.price = valor.value
+
+ let response = await fetch(url, {
+  method: 'PUT',
+  mode: 'cors',
+  headers: {'content-type': 'application/json'},
+  body: JSON.stringify(livroJSON) /* forçando a conversao json */
+
+ })
+
+if ( response.status == 200){
+  alert("Atualizado com sucesso")
+  getLivros()
+} else{
+  alert("Não foi possivel inserir os registros, verifique os dados enviados")
+}
+
+
+  
 }
 
 // funcao para deletar livro
@@ -163,7 +198,11 @@ const getBuscarLivro = async function(idLivro){
       document.getElementById("subtitle").value = dados.books[0].subtitle
       document.getElementById("price").value = dados.books[0].price
       document.getElementById("image").value = dados.books[0].image
+      // mudando o texto do botao, de salvar (origem) para atualizar'
+      document.getElementById('Salvar').innerText = 'Atualizar'
 
+      //guarda o valor do ID numa variavel de sessao (navegador aberto).
+      sessionStorage.setItem('idLivro',idLivro)
 
     } else {
       alert("Não foi possivel achar e localizar o registro")
@@ -174,7 +213,12 @@ const getBuscarLivro = async function(idLivro){
 
 
 botaoSalvar.addEventListener("click",function(){
+    // ira validar no sistema se é salvar (criando um novo) ou atualizar cadastro
+  if (document.getElementById("Salvar").innerText == 'Salvar'){
     postLivros()
+  } else if(document.getElementById("Salvar").innerText == 'Atualizar'){
+    putLivro()
+  }
 })
 
 window.addEventListener('load', function(){
